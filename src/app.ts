@@ -8,9 +8,11 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+import indexRoutes from "./routes/indexRoutes.js";
 import userRouter  from "./routes/user.route.js"
 
 app.use("/api/v1/users",userRouter)
-
+app.use("/api/v1/song", indexRoutes)
 export {app}
