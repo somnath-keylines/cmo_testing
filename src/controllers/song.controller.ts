@@ -4,39 +4,58 @@ import  { Cmo } from "../models/cmo.model.js";
 import  { Song } from "../models/song.model.js";
 import  { ApiError } from "../utils/ApiError.js";
 import  { asyncHandler } from "../utils/asyncHandler.js";
+import type { AuthenticatedRequest } from "../middlewares/Auth.middlewares.js";
+import { User } from "../models/user.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
-export const songAdd = asyncHandler(async (req: Request, res: Response) => {
-  
-  const { title, genre, singerName, description, owner } = req.body as {
-    title?: string;
-    genre?: string;
-    singerName?: string;
-    description?: string;
-    owner?: string;
-  };
+export const songAdd = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
 
-  // Validation
-  if ([title, singerName, owner].some((field) => !field || field.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
+    const userId = req.user?.id;   // ✅ directly from token
+
+  if (!userId) {
+    throw new ApiError(401, "Invalid token: missing user id");
   }
 
-     const cmoExists = await Cmo.findById(owner);
-     if(!cmoExists){
-        throw new ApiError(404, "Cmo not found");
-     }
+  const user = await User.findById(userId).select("-password");
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+        if (user.role !== "admin")  {
+      throw new ApiError(404, "You are not authorised to add song");
+      }
+    try {
+      const { title, genre, singerName, description, owner } = req.body as {
+        title?: string;
+        genre?: string;
+        singerName?: string;
+        description?: string;
+        owner?: string;
+      };
+  
 
-  const result = await Song.create({
-    title,
-    genre,
-    singerName,
-    description,
-    owner,
-  });
+      // Validation
+      if ([title, singerName, owner].some((field) => !field || field.trim() === "")) {
+        throw new ApiError(400, "All fields are required");
+      }
 
-  res.status(200).json({
-    message: "Song added successfully",
-    song: result,
-  });
+        const cmoExists = await Cmo.findById(owner);
+        if(!cmoExists){
+            throw new ApiError(404, "Cmo not found");
+        }
+
+      const result = await Song.create({
+        title,
+        genre,
+        singerName,
+        description,
+        owner,
+      });
+
+       return res.status(200).json(new ApiResponse(200, result, "Song added successfully"));
+
+    } catch (error) {
+      throw new ApiError(400, "Invalid request body");
+    }
 });
 
 
