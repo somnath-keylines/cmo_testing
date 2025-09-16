@@ -62,8 +62,7 @@ export const songAdd = asyncHandler(async (req: AuthenticatedRequest, res: Respo
 export const songFetch = asyncHandler(async (req: Request, res: Response) => {
   const result = await Song.find()
                 .populate("owner", "name email phone gstNumber licenseNumber");
-  res.status(200).json({
-    message: "Song fetched successfully",
-    allSongs: result,
-  });
+      return res
+      .status(200)
+      .json(new ApiResponse(200, result, "Song fetched successfully"));
 });
