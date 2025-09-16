@@ -6,6 +6,7 @@ export interface ISong {
   genre?: string;
   singerName: string;
   description?: string;
+  defaultImage?: string;
   owner: mongoose.Types.ObjectId;
 }
 

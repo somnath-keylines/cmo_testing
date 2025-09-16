@@ -10,4 +10,4 @@ router.route("/all-order").get(authenticateToken,getAllOrders)
 router.route("/:orderId/status").patch(authenticateToken,updateOrderStatus)
 
 
-export default router
+export default router 

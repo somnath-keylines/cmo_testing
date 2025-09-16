@@ -8,6 +8,7 @@ const songSchema = new Schema<SongDocument>(
     genre: { type: String },
     singerName: { type: String, required: true },
     description: { type: String },
+    defaultImage: {type: String, default: "https://static.vecteezy.com/system/resources/thumbnails/026/433/446/small_2x/abstract-musical-note-symbol-painting-black-background-generative-ai-photo.jpg"}, 
     owner: { type: Schema.Types.ObjectId, ref: "Cmo", required: true },
   },
   { timestamps: true }

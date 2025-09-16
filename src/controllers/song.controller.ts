@@ -24,11 +24,12 @@ export const songAdd = asyncHandler(async (req: AuthenticatedRequest, res: Respo
       return res.status(400).json(new ApiError(400, "Only admin can add song"));
       }
     try {
-      const { title, genre, singerName, description, owner } = req.body as {
+      const { title, genre, singerName, description, defaultImage, owner } = req.body as {
         title?: string;
         genre?: string;
         singerName?: string;
         description?: string;
+        defaultImage?: string;
         owner?: string;
       };
   
@@ -48,6 +49,7 @@ export const songAdd = asyncHandler(async (req: AuthenticatedRequest, res: Respo
         genre,
         singerName,
         description,
+        defaultImage,
         owner,
       });
 
