@@ -25,7 +25,7 @@ const registerUser = asyncHandler(
         (field) => typeof field !== "string" || field.trim() === ""
       )
     ) {
-      throw new ApiError(400, "All fields are required");
+      return res.status(400).json(new ApiError(400, "All fields are required"));
     }
 
     const existedUser = await User.findOne({
@@ -33,10 +33,7 @@ const registerUser = asyncHandler(
     });
 
     if (existedUser) {
-      throw new ApiError(
-        409,
-        "User with same username or email already exists"
-      );
+      return res.status(409).json(new ApiError(409, "User with same email or username already exists"));
     }
 
     // ✅ Safe hashing
@@ -73,13 +70,13 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     password: string;
   };
   if (!existedUser) {
-    throw new ApiError(404, "Email not found");
+    return res.status(200).json(new ApiError(200, "Email not found"));
   }
 
   // ✅ Compare hashed password
   const isPasswordValid = await bcrypt.compare(password, existedUser.password);
   if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid credentials");
+    return res.status(200).json(new ApiError(200, "Invalid password"));
   }
 
   // ✅ token payload with id, name, role (flattened)
@@ -111,12 +108,12 @@ const viewProfile = asyncHandler(
     const userId = req.user?.id; // ✅ directly from token
 
     if (!userId) {
-      throw new ApiError(401, "Invalid token: missing user id");
+      return res.status(200).json(new ApiError(200, "Invalid token: missing user id"));
     }
 
     const user = await User.findById(userId).select("-password");
     if (!user) {
-      throw new ApiError(404, "User not found");
+      return res.status(200).json(new ApiError(200, "User not found"));
     }
 
     return res

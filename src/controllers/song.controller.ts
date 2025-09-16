@@ -13,15 +13,15 @@ export const songAdd = asyncHandler(async (req: AuthenticatedRequest, res: Respo
     const userId = req.user?.id;   // ✅ directly from token
 
   if (!userId) {
-    throw new ApiError(401, "Invalid token: missing user id");
+    return res.status(200).json(new ApiError(200, "Invalid token: missing user id"));
   }
 
   const user = await User.findById(userId).select("-password");
     if (!user) {
-      throw new ApiError(404, "User not found");
+      return res.status(200).json(new ApiError(200, "User not found"));
     }
         if (user.role !== "admin")  {
-      throw new ApiError(404, "You are not authorised to add song");
+      return res.status(400).json(new ApiError(400, "Only admin can add song"));
       }
     try {
       const { title, genre, singerName, description, owner } = req.body as {
@@ -35,12 +35,12 @@ export const songAdd = asyncHandler(async (req: AuthenticatedRequest, res: Respo
 
       // Validation
       if ([title, singerName, owner].some((field) => !field || field.trim() === "")) {
-        throw new ApiError(400, "All fields are required");
+        return res.status(400).json(new ApiError(400, "all fields are required"));
       }
 
         const cmoExists = await Cmo.findById(owner);
         if(!cmoExists){
-            throw new ApiError(404, "Cmo not found");
+            return res.status(404).json(new ApiError(404, "com not found"));
         }
 
       const result = await Song.create({

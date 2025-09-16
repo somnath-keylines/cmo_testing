@@ -12,19 +12,19 @@ export const placeOrder = asyncHandler(
     const userId = req.user?.id; // ✅ from JWT
 
     if (!userId) {
-      throw new ApiError(401, "Unauthorized: User not logged in");
+      return res.status(400).json(new ApiError(400, "Unauthorized: No user found in request"));
     }
 
     const { songId, celebrity = false , guest = "1-50", price } = req.body;
 
     if (!songId || !price ||  celebrity === undefined  || !guest) {
-      throw new ApiError(400, "All fields are required");
+      return res.status(400).json(new ApiError(400, "All fields are required"));
     }
 
     // ✅ Check if song exists
     const song = await Song.findById(songId);
     if (!song) {
-      throw new ApiError(404, "Song not found");
+      return res.status(404).json(new ApiError(404, "Song not found"));
     }
 
     // ✅ Create new order
@@ -53,7 +53,7 @@ export const getOrderHistory = asyncHandler(
     const userId = req.user?.id;
 
     if (!userId) {
-      throw new ApiError(401, "Unauthorized: No user found in request");
+      return res.status(400).json(new ApiError(400, "Unauthorized: No user found in request"));
     }
 
     const orders = await Order.find({ userId })
@@ -76,11 +76,11 @@ export const getAllOrders = asyncHandler(
     const userRole = req.user?.role;
 
     if (!userRole) {
-      throw new ApiError(401, "Please login to access this resource");
+      return res.status(400).json(new ApiError(400, "please login to access this resource"));
     }
 
     if (userRole !== "admin") {
-      throw new ApiError(403, "Access denied. Admins only.");
+      return res.status(400).json(new ApiError(400, "Access denied Admin only"));
     }
 
     const orders = await Order.find()
@@ -102,11 +102,11 @@ export const updateOrderStatus = asyncHandler(
     const userRole = req.user?.role;
 
     if (!userRole) {
-      throw new ApiError(401, "Please login to access this resource");
+     return res.status(400).json(new ApiError(400, "please login to access this resource"));
     }
 
     if (userRole !== "admin") {
-      throw new ApiError(403, "Access denied. Admins only.");
+      return res.status(403).json(new ApiError(403, "Access denied: Admins only"));
     }
 
     const { orderId } = req.params;
@@ -115,10 +115,7 @@ export const updateOrderStatus = asyncHandler(
     // ✅ validate status input
     const allowedStatuses = ["pending", "approved", "rejected", "completed"];
     if (!allowedStatuses.includes(status)) {
-      throw new ApiError(
-        400,
-        `Invalid status. Allowed values: ${allowedStatuses.join(", ")}`
-      );
+      return res.status(400).json(new ApiError(400, "Invalid status value"));
     }
 
     const updatedOrder = await Order.findByIdAndUpdate(
@@ -134,7 +131,7 @@ export const updateOrderStatus = asyncHandler(
       .exec();
 
     if (!updatedOrder) {
-      throw new ApiError(404, "Order not found");
+      return res.status(400).json(new ApiError(400, "Order not found"));
     }
 
     return res.status(200).json(

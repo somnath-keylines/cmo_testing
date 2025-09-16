@@ -11,15 +11,15 @@ export const cmoAdd = asyncHandler(async (req: AuthenticatedRequest, res: Respon
           const userId = req.user?.id;   // ✅ directly from token
 
       if (!userId) {
-        throw new ApiError(401, "Invalid token: missing user id");
+        return res.status(401).json(new ApiError(401, "Invalid token : missing user id"));
       }
 
       const user = await User.findById(userId).select("-password");
     if (!user) {
-      throw new ApiError(404, "User not found");
+     return res.status(404).json(new ApiError(404, "user not found"));
     }
         if (user.role !== "admin")  {
-      throw new ApiError(404, "You are not authorised to add cmo");
+      return res.status(403).json(new ApiError(403, "Access denied Admin only"));
       }
     try {
       const { name, email, phone, gstNumber, licenseNumber } = req.body as {
@@ -32,7 +32,7 @@ export const cmoAdd = asyncHandler(async (req: AuthenticatedRequest, res: Respon
 
       // Validation
       if ([name, email, gstNumber, licenseNumber ].some((field) => !field || field.trim() === "" || !phone)) {
-            throw new ApiError(400, "All fields are required");
+            return res.status(401).json(new ApiError(401, "all fields are required"));
           }
 
 
