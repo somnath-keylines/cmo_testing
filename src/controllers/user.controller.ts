@@ -57,16 +57,21 @@ const registerUser = asyncHandler(
 
     return res
       .status(201)
-      .json(
-        new ApiResponse(201, createdUser, "User registered successfully")
-      );
+      .json(new ApiResponse(201, createdUser, "User registered successfully"));
   }
 );
 
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const existedUser = await User.findOne({ email }) as (import("mongoose").Document & { _id: any, username: string, role: string, password: string });
+  const existedUser = (await User.findOne({
+    email,
+  })) as import("mongoose").Document & {
+    _id: any;
+    username: string;
+    role: string;
+    password: string;
+  };
   if (!existedUser) {
     throw new ApiError(404, "Email not found");
   }
@@ -88,34 +93,36 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     { expiresIn: "15d" }
   );
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        {
-          id: existedUser._id,
-          role: existedUser.role,
-          token,
-        },
-        "Login successful"
-      )
-    );
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        id: existedUser._id,
+        role: existedUser.role,
+        token,
+      },
+      "Login successful"
+    )
+  );
 });
 
-const viewProfile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user?.id;   // ✅ directly from token
+const viewProfile = asyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.id; // ✅ directly from token
 
-  if (!userId) {
-    throw new ApiError(401, "Invalid token: missing user id");
+    if (!userId) {
+      throw new ApiError(401, "Invalid token: missing user id");
+    }
+
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User profile fetched successfully"));
   }
-
-  const user = await User.findById(userId).select("-password");
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
-
-  return res.status(200).json(new ApiResponse(200, user, "User profile fetched successfully"));
-});
+);
 
 export { registerUser, loginUser, viewProfile };

@@ -55,6 +55,6 @@ export const cmoAdd = asyncHandler(async (req: AuthenticatedRequest, res: Respon
 
 export const cmoFetch = asyncHandler(async (req: Request, res: Response) => {
   const result = await Cmo.find();
-    return res.status(200).json(new ApiResponse(200, result, "CMO added successfully"));
+    return res.status(200).json(new ApiResponse(200, result, "CMO fetched successfully"));
 
 });
