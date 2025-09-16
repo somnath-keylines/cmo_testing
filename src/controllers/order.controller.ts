@@ -15,9 +15,9 @@ export const placeOrder = asyncHandler(
       throw new ApiError(401, "Unauthorized: User not logged in");
     }
 
-    const { songId, celebrity = false, guest = "1-50", price } = req.body;
+    const { songId, celebrity = false , guest = "1-50", price } = req.body;
 
-    if (!songId || !price || !celebrity || !guest) {
+    if (!songId || !price ||  celebrity === undefined  || !guest) {
       throw new ApiError(400, "All fields are required");
     }
 
