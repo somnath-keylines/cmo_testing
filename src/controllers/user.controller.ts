@@ -103,6 +103,13 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
   );
 });
 
+const logoutUser = asyncHandler(async (req: Request, res: Response) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Logout successful. Please discard the token on client side."));
+});
+
+
 const viewProfile = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id; // ✅ directly from token
@@ -122,4 +129,4 @@ const viewProfile = asyncHandler(
   }
 );
 
-export { registerUser, loginUser, viewProfile };
+export { registerUser, loginUser,logoutUser, viewProfile };
